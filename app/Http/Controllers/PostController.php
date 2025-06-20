@@ -31,6 +31,8 @@ class PostController extends Controller
 
     public function index()
     {
+        $posts = $this->postService->fetch();
+        return PostResource::collection($posts);
     }
 
     /**

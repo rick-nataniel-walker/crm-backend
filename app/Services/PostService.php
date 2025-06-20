@@ -36,4 +36,9 @@ class PostService
 
         return Post::create($validatedData);
     }
+
+    public function fetch()
+    {
+        return Post::all();
+    }
 }

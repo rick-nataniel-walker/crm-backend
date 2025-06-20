@@ -16,12 +16,13 @@ class PostResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            "id" => $this->id,
             "title" => $this->title,
             "slug" =>  $this->slug,
             "excerpt" =>  $this->excerpt,
             "content" =>  $this->content,
-            "authorId" => $this->author_id,
-            "categoryId" =>  $this->category_id,
+            "author" => $this->author_id,
+            "category" =>  $this->category_id,
             "postImg" =>  $this->featured_image,
             "status" =>  $this->status,
             "publishedAt" =>  Carbon::parse($this->published_at)->format('Y-m-d H:i:s')
