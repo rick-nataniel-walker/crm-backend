@@ -113,6 +113,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-
+        $deleted = $this->postService->delete($post);
+        return new PostResource($deleted);
     }
 }

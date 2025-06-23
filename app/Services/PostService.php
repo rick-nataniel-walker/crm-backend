@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\mappers\PostMapper;
 use App\Models\Post;
 use App\Traits\FileUpload;
 use App\Traits\StringsTrait;
@@ -12,33 +13,44 @@ class PostService
     use FileUpload;
     use StringsTrait;
 
+    protected PostMapper $postMapper;
+
     public function create(Request $request)
 
     {
-        $validatedData = $request->validate([
+        $validatedRaw = $request->validate([
             "title" => "required|string",
-            "slug" => "required",
-            "excerpt" => "required|string",
+            "slug" => "required|string|unique:posts,slug",
+            "excerpt" => "nullable|string",
             "content" => "required|string",
-            "author_id" => "required|integer",
-            "category_id" => "required|integer",
-            "featured_image" => "required",
-            "status" => "required|string",
-            "published_at" => "required"
+            "authorId" => "required|integer|exists:users,id",
+            "categoryId" => "required|integer|exists:categories,id",
+            "postImg" => "required",
+            "status" => "required|string|in:draft,published",
+            "publishedAt" => "required|date",
         ]);
 
-        $imgType = gettype($validatedData["featured_image"]);
+        $this->postMapper = new PostMapper();
+        $mappedData = $this->postMapper->mapToRequest(new Request($validatedRaw));
+
+        $imgType = gettype($mappedData["featured_image"]);
 
         if($imgType !== "string") {
-            $storename = $this->uploadDoc($request, "featured_image", env("POST_DIRECTORY"))["storename"];
-            $validatedData["featured_image"] = $storename;
+            $storename = $this->uploadDoc($request, "postImg", env("POST_DIRECTORY"))["storename"];
+            $mappedData["featured_image"] = $storename;
         }
 
-        return Post::create($validatedData);
+        return Post::create($mappedData);
     }
 
     public function fetch()
     {
         return Post::all();
+    }
+
+    public function delete(Post $post) {
+        $toDelete = $post;
+        $toDelete->delete();
+        return $post;
     }
 }

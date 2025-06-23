@@ -3,7 +3,9 @@
 namespace Http\Controllers;
 
 use App\Http\Resources\PostResource;
+use App\Models\Category;
 use App\Models\Post;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -15,18 +17,22 @@ class PostControllerTest extends TestCase
     Use RefreshDatabase;
     public function testCreatePost()
     {
+
         $this->withoutExceptionHandling();
+
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
         // Define post data
         $postData = [
             'title' => fake()->sentence,
             'slug' => fake()->word,
             'excerpt' => fake()->sentence,
             'content' => fake()->sentence,
-            'author_id' => fake()->numberBetween(1,10),
-            'category_id' => fake()->numberBetween(1,10),
-            'featured_image' => fake()->sentence,
+            'authorId' => $user->id,
+            'categoryId' => $category->id,
+            'postImg' => fake()->sentence,
             'status' => 'draft',
-            'published_at' => now(),
+            'publishedAt' => now(),
         ];
 
 
@@ -49,7 +55,8 @@ class PostControllerTest extends TestCase
 
     public function testPostWithImageUpload()
     {
-        // Use fake storage to avoid affecting the real disk
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
         Storage::fake('public');
 
         // Prepare test data with an uploaded image
@@ -60,11 +67,11 @@ class PostControllerTest extends TestCase
             'slug' => 'post-with-image',
             'excerpt' => 'This is an excerpt.',
             'content' => 'This is the full content.',
-            'author_id' => fake()->numberBetween(1,10),
-            'category_id' => fake()->numberBetween(1,10),
-            'featured_image' => $file,
+            'authorId' => $user->id,
+            'categoryId' => $category->id,
+            'postImg' => $file,
             'status' => 'published',
-            'published_at' => Carbon::parse(now()->toISOString())->format('Y-m-d H:i:s')
+            'publishedAt' => Carbon::parse(now()->toISOString())->format('Y-m-d H:i:s')
         ];
 
         $response = $this->postJson('/api/posts', $postData);
@@ -77,7 +84,7 @@ class PostControllerTest extends TestCase
         );
 
         // Assert the image was stored
-        $response->assertJson('data.featured_image');
+        $response->assertJson('data.postImg');
 
         // Assert post was inserted into DB (optional but good practice)
         $this->assertDatabaseHas('posts', [

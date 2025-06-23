@@ -12,6 +12,7 @@ Route::get('/user', function (Request $request) {
 
 Route::GET("/posts", [PostController::class, "index"]);
 Route::POST("/posts", [PostController::class, "store"]);
+Route::DELETE("/posts/{post}", [PostController::class, "destroy"]);
 Route::get('/api/documentation', [SwaggerController::class, 'api'])->name('l5-swagger.info.docs');
 
 Route::GET("/categories", [CategoryController::class, "index"]);
