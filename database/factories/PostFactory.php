@@ -23,8 +23,8 @@ class PostFactory extends Factory
             'content' => fake()->sentence,
             'author_id' => fake()->numberBetween(1,10),
             'category_id' => fake()->numberBetween(1,10),
-            'featured_img' => fake()->sentence,
-            'status' => fake()->word,
+            'featured_image' => fake()->sentence,
+            'status' => "draft",
             'published_at' => fake()->dateTime,
         ];
     }

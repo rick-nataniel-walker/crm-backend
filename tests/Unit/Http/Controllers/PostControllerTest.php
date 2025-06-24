@@ -74,7 +74,7 @@ class PostControllerTest extends TestCase
             'publishedAt' => Carbon::parse(now()->toISOString())->format('Y-m-d H:i:s')
         ];
 
-        $response = $this->postJson('/api/posts', $postData);
+        $response = $this->patch('/api/posts', $postData);
 
         $post = Post::first();
 
@@ -85,6 +85,42 @@ class PostControllerTest extends TestCase
 
         // Assert the image was stored
         $response->assertJson('data.postImg');
+
+        // Assert post was inserted into DB (optional but good practice)
+        $this->assertDatabaseHas('posts', [
+            'title' => $postData['title'],
+            'slug' => $postData['slug'],
+        ]);
+    }
+
+    public function testUpdatePost()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+        $post = Post::factory()->create();
+        Storage::fake('public');
+
+        // Prepare test data with an uploaded image
+        $file = UploadedFile::fake()->image('post-image.jpg');
+
+        $postData = [
+            'title' => 'Post with image',
+            'slug' => 'post-with-image',
+            'excerpt' => 'This is an excerpt.',
+            'content' => 'This is the full content.',
+            'authorId' => $user->id,
+            'categoryId' => $category->id,
+            'postImg' => $file,
+            'status' => 'published',
+            'publishedAt' => Carbon::parse(now()->toISOString())->format('Y-m-d H:i:s')
+        ];
+
+        $response = $this->patchJson("/api/posts/$post->id", $postData);
+
+        $response->assertStatus(200);
+        $response->assertExactJson(
+            (new PostResource($post))->response()->getData(true)
+        );
 
         // Assert post was inserted into DB (optional but good practice)
         $this->assertDatabaseHas('posts', [

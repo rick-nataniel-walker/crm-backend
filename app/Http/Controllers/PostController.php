@@ -105,7 +105,8 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        $post = $this->postService->update($request, $post);
+        return new PostResource($post);
     }
 
     /**

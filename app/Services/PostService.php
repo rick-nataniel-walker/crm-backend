@@ -16,30 +16,8 @@ class PostService
     protected PostMapper $postMapper;
 
     public function create(Request $request)
-
     {
-        $validatedRaw = $request->validate([
-            "title" => "required|string",
-            "slug" => "required|string|unique:posts,slug",
-            "excerpt" => "nullable|string",
-            "content" => "required|string",
-            "authorId" => "required|integer|exists:users,id",
-            "categoryId" => "required|integer|exists:categories,id",
-            "postImg" => "required",
-            "status" => "required|string|in:draft,published",
-            "publishedAt" => "required|date",
-        ]);
-
-        $this->postMapper = new PostMapper();
-        $mappedData = $this->postMapper->mapToRequest(new Request($validatedRaw));
-
-        $imgType = gettype($mappedData["featured_image"]);
-
-        if($imgType !== "string") {
-            $storename = $this->uploadDoc($request, "postImg", env("POST_DIRECTORY"))["storename"];
-            $mappedData["featured_image"] = $storename;
-        }
-
+        $mappedData = $this->validateData($request);
         return Post::create($mappedData);
     }
 
@@ -52,5 +30,45 @@ class PostService
         $toDelete = $post;
         $toDelete->delete();
         return $post;
+    }
+
+    public function update(Request $request, Post $post)
+    {
+        $mappedData = $this->validateData($request);
+        if ($post->update($mappedData)) return $post;
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function validateData(Request $request): array
+    {
+        $validatedRaw = $request->validate([
+            "title" => "required|string",
+            "slug" => "required|string",
+            "excerpt" => "nullable|string",
+            "content" => "required|string",
+            "authorId" => "required|integer|exists:users,id",
+            "categoryId" => "required|integer|exists:categories,id",
+            "postImg" => "sometimes",
+            "status" => "required|string|in:draft,published",
+            "publishedAt" => "sometimes|date",
+        ]);
+
+        $this->postMapper = new PostMapper();
+        $mappedData = $this->postMapper->mapToRequest(new Request($validatedRaw));
+
+        if($mappedData["featured_image"]!==null) {
+            $imgType = gettype($mappedData["featured_image"]);
+
+            if ($imgType !== "string") {
+                $storename = $this->uploadDoc($request, "postImg", env("POST_DIRECTORY"))["storename"];
+                $mappedData["featured_image"] = $storename;
+            }
+        } else {
+            unset($mappedData["featured_image"]);
+        }
+        return $mappedData;
     }
 }

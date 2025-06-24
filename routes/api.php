@@ -10,10 +10,12 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/api/documentation', [SwaggerController::class, 'api'])->name('l5-swagger.info.docs');
+
 Route::GET("/posts", [PostController::class, "index"]);
 Route::POST("/posts", [PostController::class, "store"]);
 Route::DELETE("/posts/{post}", [PostController::class, "destroy"]);
-Route::get('/api/documentation', [SwaggerController::class, 'api'])->name('l5-swagger.info.docs');
+Route::POST("/posts/{post}", [PostController::class, "update"]);
 
 Route::GET("/categories", [CategoryController::class, "index"]);
 Route::POST("/categories", [CategoryController::class, "store"]);
