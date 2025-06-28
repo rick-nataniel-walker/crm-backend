@@ -5,6 +5,7 @@ namespace Http\Controllers;
 use App\Http\Resources\PostResource;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\PostTag;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -127,6 +128,51 @@ class PostControllerTest extends TestCase
             'title' => $postData['title'],
             'slug' => $postData['slug'],
         ]);
+    }
+
+    public function testCreatePostWithTags()
+    {
+
+        $this->withoutExceptionHandling();
+
+        $user = User::factory()->create();
+        $category = Category::factory()->create();
+        // Define post data
+        $postData = [
+            'title' => fake()->sentence,
+            'slug' => fake()->word,
+            'excerpt' => fake()->sentence,
+            'content' => fake()->sentence,
+            'authorId' => $user->id,
+            'categoryId' => $category->id,
+            'postImg' => fake()->sentence,
+            'status' => 'draft',
+            'publishedAt' => now(),
+            'tags' => [1,2],
+        ];
+
+
+        $response = $this->post("api/posts", $postData);
+
+        $response->assertStatus(201);
+
+        $post = Post::first();
+        $post_tag = PostTag::first();
+
+        // Assert that the post was created
+        $this->assertDatabaseHas('posts', [
+            'title' => $postData["title"],
+            'content' => $postData['content'],
+        ]);
+
+        $this->assertDatabaseHas("post_tag",[
+            "post_id" => $post->id,
+            "tag_id" => $postData["tags"][0],
+        ]);
+
+        $response->assertExactJson(
+            (new PostResource($post))->response()->getData(true)
+        );
     }
 
 }

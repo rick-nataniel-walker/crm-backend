@@ -19,7 +19,7 @@ class PostMapper
             "category_id" => $data["categoryId"],
             "featured_image" => $data["postImg"],
             "status" => $data["status"],
-            "published_at" => $data["publishedAt"]
+            "published_at" => $data["publishedAt"],
         ];
     }
 }

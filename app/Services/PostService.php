@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\mappers\PostMapper;
 use App\Models\Post;
+use App\Models\PostTag;
 use App\Traits\FileUpload;
 use App\Traits\StringsTrait;
 use Illuminate\Http\Request;
@@ -18,7 +19,13 @@ class PostService
     public function create(Request $request)
     {
         $mappedData = $this->validateData($request);
-        return Post::create($mappedData);
+        $tags = $request->tags;
+        $post = Post::create($mappedData);
+
+        if (is_array($tags)) {
+            $post->tags()->attach($tags);
+        }
+        return $post;
     }
 
     public function fetch()
@@ -35,6 +42,10 @@ class PostService
     public function update(Request $request, Post $post)
     {
         $mappedData = $this->validateData($request);
+        $tags = $request->tags;
+        if (is_array($tags)) {
+            $post->tags()->sync($tags);
+        }
         if ($post->update($mappedData)) return $post;
     }
 

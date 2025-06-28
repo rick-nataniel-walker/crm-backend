@@ -29,6 +29,7 @@ class PostResource extends JsonResource
                 "id"=>$this->category->id,
                 "name" => $this->category->name
             ],
+            "tags" => $this->tags,
             "postImg" =>  $this->featured_image,
             "status" =>  $this->status,
             "publishedAt" =>  Carbon::parse($this->published_at)->format('Y-m-d H:i:s')
