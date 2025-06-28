@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CategoryResource;
+use App\Models\Category;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
 
@@ -36,5 +37,16 @@ class CategoryController extends Controller
     {
         $category = $this->categoryService->create($request);
         return new CategoryResource($category);
+    }
+
+    public function update(Request $request, Category $category)
+    {
+        $updated = $this->categoryService->update($request, $category);
+        return new CategoryResource($updated);
+    }
+
+    public function destroy(Category $category) {
+        $deleted = $this->categoryService->delete($category);
+        return new CategoryResource($deleted);
     }
 }

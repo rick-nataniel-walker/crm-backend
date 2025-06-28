@@ -19,3 +19,5 @@ Route::POST("/posts/{post}", [PostController::class, "update"]);
 
 Route::GET("/categories", [CategoryController::class, "index"]);
 Route::POST("/categories", [CategoryController::class, "store"]);
+Route::DELETE("/categories/{category}", [CategoryController::class, "destroy"]);
+Route::POST("/categories/{category}", [CategoryController::class, "update"]);
