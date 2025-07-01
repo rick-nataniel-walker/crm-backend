@@ -30,7 +30,7 @@ class PostService
 
     public function fetch()
     {
-        return Post::all();
+        return Post::orderBy('created_at', 'desc')->get();
     }
 
     public function delete(Post $post) {
