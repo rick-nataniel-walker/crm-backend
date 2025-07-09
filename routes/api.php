@@ -14,6 +14,7 @@ Route::get('/user', function (Request $request) {
 Route::get('/api/documentation', [SwaggerController::class, 'api'])->name('l5-swagger.info.docs');
 
 Route::GET("/posts", [PostController::class, "index"]);
+Route::GET("/posts/{post}", [PostController::class, "show"]);
 Route::POST("/posts", [PostController::class, "store"]);
 Route::DELETE("/posts/{post}", [PostController::class, "destroy"]);
 Route::POST("/posts/{post}", [PostController::class, "update"]);
