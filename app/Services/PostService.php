@@ -70,8 +70,8 @@ class PostService
         $this->postMapper = new PostMapper();
         $mappedData = $this->postMapper->mapToRequest(new Request($validatedRaw));
 
-        if($mappedData["featured_image"]!==null) {
-            $imgType = gettype($mappedData["featured_image"]);
+        if($validatedRaw["postImg"]!==null) {
+            $imgType = gettype($validatedRaw["postImg"]);
 
             if ($imgType !== "string") {
                 $storename = $this->uploadDoc($request, "postImg", env("POST_DIRECTORY"))["storename"];
