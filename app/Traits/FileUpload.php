@@ -2,6 +2,10 @@
 
 namespace App\Traits;
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
+
 trait FileUpload
 {
     use StringsTrait;
@@ -38,6 +42,23 @@ trait FileUpload
         $results = ['path' => $filepath, 'filename' => $filename];
         return file_put_contents($filepath, $image_base64) != false ? $results : null;
 
+    }
+
+    public function parseToImg($filename, $storageFolder) {
+        $path = "$storageFolder/$filename";
+
+        if (Storage::disk("public")->exists($path)) {
+            $fullPath = Storage::disk("public")->path($path);
+            $file = Storage::disk("public")->get($path);
+            return $this->convertToBase64($fullPath, $file);
+        }
+    }
+
+
+    public function convertToBase64($filepath,$file) {
+        $mime = File::mimeType($filepath);
+
+        return "data:$mime;base64," . base64_encode($file);
     }
 
 }

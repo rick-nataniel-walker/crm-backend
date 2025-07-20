@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostTag;
 use App\Models\User;
+use App\Traits\FileUpload;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -16,6 +17,7 @@ use Tests\TestCase;
 class PostControllerTest extends TestCase
 {
     Use RefreshDatabase;
+    Use FileUpload;
     public function testCreatePost()
     {
 
@@ -173,6 +175,20 @@ class PostControllerTest extends TestCase
         $response->assertExactJson(
             (new PostResource($post))->response()->getData(true)
         );
+    }
+
+    public function testParseToImg() {
+        Storage::fake('public');
+        $file = UploadedFile::fake()->image('post-image.jpg');
+        $file->storeAs('public/posts', 'post-image.jpg');
+        $this->withoutExceptionHandling();
+        $parsed = $this->parseToImg('post-image.jpg','posts');
+
+        $this->assertIsArray($parsed);
+        $this->assertNotEmpty($parsed);
+
+        Storage::disk('public')->assertExists('posts/post-image.jpg');
+
     }
 
 }
